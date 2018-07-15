@@ -6,6 +6,7 @@ use serde_json::Value;
 pub type RcMixed = Rc_<Value>;
 pub type RcStr = Rc_<String>;
 
+#[allow(derive_hash_xor_eq)]
 #[derive(Debug, Default, Hash, Clone, Eq, Deserialize)]
 pub struct Rc_<T>(Rc<T>);
 

@@ -44,6 +44,7 @@ pub fn subtype(child: &Unit, parent: &Unit) -> bool {
         && check_opt(&child.type_, &parent.type_, |c, p| c == p)
 }
 
+#[allow(borrowed_box)]
 fn subtype_box(child: &Box<Unit>, parent: &Box<Unit>) -> bool {
     subtype(&*child, &*parent)
 }

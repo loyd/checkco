@@ -1,3 +1,5 @@
+#![allow(unknown_lints)]
+
 extern crate either;
 extern crate serde;
 #[macro_use]
@@ -29,16 +31,12 @@ pub fn check(derived: Schema, base: Schema) -> Verdict {
     //println!("{:#?}", base);
 
     for d in &derived {
-        let is_subtype = base.iter().any(|b| {
-            let res = matcher::subtype(d, b);
-
-            res
-        });
+        let is_subtype = base.iter().any(|b| matcher::subtype(d, b));
 
         if !is_subtype {
             return Verdict::Failure;
         }
     }
 
-    return Verdict::Success;
+    Verdict::Success
 }
