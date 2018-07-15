@@ -10,6 +10,18 @@ pub type RcStr = Rc_<String>;
 #[derive(Debug, Default, Hash, Clone, Eq, Deserialize)]
 pub struct Rc_<T>(Rc<T>);
 
+impl<T: Into<Value>> From<T> for RcMixed {
+    fn from(val: T) -> RcMixed {
+        Rc_(Rc::new(val.into()))
+    }
+}
+
+impl<T: Into<String>> From<T> for RcStr {
+    fn from(val: T) -> RcStr {
+        Rc_(Rc::new(val.into()))
+    }
+}
+
 impl<T: PartialEq> PartialEq for Rc_<T> {
     fn eq(&self, other: &Rc_<T>) -> bool {
         Rc::ptr_eq(&self.0, &other.0) || self.0 == other.0

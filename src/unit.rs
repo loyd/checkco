@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use schema::{RcMixed, RcStr, Type};
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Unit {
     pub const_: Option<RcMixed>,
     pub multiple_of: Option<f64>,

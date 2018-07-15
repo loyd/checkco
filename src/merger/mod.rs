@@ -4,9 +4,13 @@ use std::collections::HashMap;
 use schema::RcStr;
 use unit::{Point, Unit};
 
+#[cfg(test)]
+mod spec;
+
 #[must_use]
 pub fn merge(dst: &mut Unit, src: &Unit) -> bool {
     if !(merge_unique(&mut dst.const_, &src.const_)
+        // TODO: allow Number <- Integer.
         && merge_unique(&mut dst.type_, &src.type_)
         && merge_unique(&mut dst.format, &src.format)
         && merge_nested(&mut dst.items, &src.items)
