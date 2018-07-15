@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use schema::RcStr;
 use unit::{Point, Unit};
 
+#[must_use]
 pub fn merge(dst: &mut Unit, src: &Unit) -> bool {
     if !(merge_unique(&mut dst.const_, &src.const_)
         && merge_unique(&mut dst.type_, &src.type_)

@@ -138,10 +138,15 @@ fn spread_any_of(
     let variants = schemas.into_iter().flat_map(spread).collect::<Vec<_>>();
 
     // TODO: remove unnecessary `src` cloning.
-    let it = common.cartesian_product(variants).map(|(src, mut dst)| {
-        merger::merge(&mut dst, &src);
-        dst
-    });
+    let it = common
+        .cartesian_product(variants)
+        .filter_map(|(src, mut dst)| {
+            if merger::merge(&mut dst, &src) {
+                Some(dst)
+            } else {
+                None
+            }
+        });
 
     Either::Right(it)
 }
@@ -157,14 +162,16 @@ fn spread_all_of(
     let it = iter::once(common.collect())
         .chain(schemas.into_iter().map(spread))
         .multi_cartesian_product()
-        .map(|mut units| {
+        .filter_map(|mut units| {
             let mut dst = units.swap_remove(0);
 
             for src in units {
-                merger::merge(&mut dst, &src);
+                if !merger::merge(&mut dst, &src) {
+                    return None;
+                }
             }
 
-            dst
+            Some(dst)
         });
 
     Either::Right(it)
