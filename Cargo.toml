@@ -1,5 +1,5 @@
 [package]
-name = "check-schema-compat"
+name = "checkco"
 version = "0.1.0"
 authors = ["Paul Loyd <pavelko95@gmail.com>"]
 
