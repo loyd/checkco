@@ -187,6 +187,38 @@ macro_rules! make_props_tests {
     };
 }
 
+macro_rules! make_set_tests {
+    ($field:ident) => {
+        mod $field {
+            use std::collections::HashSet;
+
+            use schema::RcStr;
+
+            #[test]
+            fn it_should_merge_if_unfilled() {
+                let mut a = HashSet::new();
+                a.insert(RcStr::from("foo"));
+                test!([$field] HashSet::new(), a.clone() => a);
+            }
+
+            #[test]
+            fn it_should_merge_appropriate_props() {
+                let mut ha = HashSet::new();
+                ha.insert(RcStr::from("bar"));
+
+                let mut hb = HashSet::new();
+                hb.insert(RcStr::from("foo"));
+
+                let mut hr = HashSet::new();
+                hr.insert(RcStr::from("foo"));
+                hr.insert(RcStr::from("bar"));
+
+                test!([$field] ha, hb => hr);
+            }
+        }
+    };
+}
+
 #[test]
 fn it_should_merge_if_nones() {
     let mut dst = Unit::default();
@@ -210,6 +242,9 @@ make_nested_tests!(contains);
 
 make_props_tests!(properties);
 make_props_tests!(pattern_props);
+
+make_set_tests!(pattern);
+make_set_tests!(required);
 
 mod const_ {
     use schema::RcMixed;
