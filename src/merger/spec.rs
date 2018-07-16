@@ -74,6 +74,58 @@ macro_rules! make_min_tests {
     };
 }
 
+macro_rules! make_nested_tests {
+    ($field:ident) => {
+        mod $field {
+            use unit::Unit;
+
+            #[test]
+            fn it_should_merge_if_unfilled() {
+                let (a, b) = (Unit::default(), Unit::default());
+                test!([$field] None, Some(Box::new(a)) => Some(Box::new(b)));
+            }
+
+            #[test]
+            fn it_should_merge_nested_unit() {
+                let a = Unit {
+                    max_items: Some(42),
+                    ..Unit::default()
+                };
+
+                let b = Unit {
+                    min_items: Some(32),
+                    ..Unit::default()
+                };
+
+                let r = Unit {
+                    max_items: Some(42),
+                    min_items: Some(32),
+                    ..Unit::default()
+                };
+
+                test!([$field] Some(Box::new(a)), Some(Box::new(b)) => Some(Box::new(r)));
+            }
+
+            #[test]
+            fn it_should_fail_if_cannot_merge() {
+                use schema::Type;
+
+                let a = Unit {
+                    type_: Some(Type::Integer),
+                    ..Unit::default()
+                };
+
+                let b = Unit {
+                    type_: Some(Type::Array),
+                    ..Unit::default()
+                };
+
+                test!([$field] Some(Box::new(a)), Some(Box::new(b)) => FAILED);
+            }
+        }
+    };
+}
+
 #[test]
 fn it_should_merge_if_nones() {
     let mut dst = Unit::default();
@@ -88,6 +140,12 @@ make_max_tests!(max_items);
 make_min_tests!(min_items);
 make_max_tests!(max_properties);
 make_min_tests!(min_properties);
+
+make_nested_tests!(items);
+make_nested_tests!(additional_items);
+make_nested_tests!(additional_props);
+make_nested_tests!(property_names);
+make_nested_tests!(contains);
 
 mod const_ {
     use schema::RcMixed;
