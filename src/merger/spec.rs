@@ -126,6 +126,67 @@ macro_rules! make_nested_tests {
     };
 }
 
+macro_rules! make_props_tests {
+    ($field:ident) => {
+        mod $field {
+            use std::collections::HashMap;
+
+            use unit::Unit;
+            use schema::RcStr;
+
+            #[test]
+            fn it_should_merge_if_unfilled() {
+                let mut a = HashMap::new();
+                a.insert(RcStr::from("foo"), Unit::default());
+                test!([$field] HashMap::new(), a.clone() => a);
+            }
+
+            #[test]
+            fn it_should_merge_appropriate_props() {
+                let mut ha = HashMap::new();
+                ha.insert(RcStr::from("foo"), Unit {
+                    max_items: Some(42),
+                    ..Unit::default()
+                });
+
+                let mut hb = HashMap::new();
+                hb.insert(RcStr::from("foo"), Unit {
+                    min_items: Some(32),
+                    ..Unit::default()
+                });
+
+                let mut hr = HashMap::new();
+                hr.insert(RcStr::from("foo"), Unit {
+                    max_items: Some(42),
+                    min_items: Some(32),
+                    ..Unit::default()
+                });
+
+                test!([$field] ha, hb => hr);
+            }
+
+            #[test]
+            fn it_should_fail_if_cannot_merge() {
+                use schema::Type;
+
+                let mut ha = HashMap::new();
+                ha.insert(RcStr::from("foo"), Unit {
+                    type_: Some(Type::Array),
+                    ..Unit::default()
+                });
+
+                let mut hb = HashMap::new();
+                hb.insert(RcStr::from("foo"), Unit {
+                    type_: Some(Type::Integer),
+                    ..Unit::default()
+                });
+
+                test!([$field] ha, hb => FAILED);
+            }
+        }
+    };
+}
+
 #[test]
 fn it_should_merge_if_nones() {
     let mut dst = Unit::default();
@@ -146,6 +207,9 @@ make_nested_tests!(additional_items);
 make_nested_tests!(additional_props);
 make_nested_tests!(property_names);
 make_nested_tests!(contains);
+
+make_props_tests!(properties);
+make_props_tests!(pattern_props);
 
 mod const_ {
     use schema::RcMixed;

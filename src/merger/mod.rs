@@ -17,9 +17,9 @@ pub fn merge(dst: &mut Unit, src: &Unit) -> bool {
         && merge_nested(&mut dst.additional_props, &src.additional_props)
         && merge_nested(&mut dst.property_names, &src.property_names)
         && merge_nested(&mut dst.contains, &src.contains)
-        && merge_tuple(&mut dst.tuple, &src.tuple))
+        && merge_tuple(&mut dst.tuple, &src.tuple)
         && merge_props(&mut dst.properties, &src.properties)
-        && merge_props(&mut dst.pattern_props, &src.pattern_props)
+        && merge_props(&mut dst.pattern_props, &src.pattern_props))
     {
         return false;
     }
