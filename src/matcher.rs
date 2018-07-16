@@ -10,7 +10,7 @@ pub fn subtype(child: &Unit, parent: &Unit) -> bool {
         && check_opt(&child.minimum, &parent.minimum, |c, p| c.max(*p) == *c)
         && check_opt(&child.max_length, &parent.max_length, PartialOrd::le)
         && check_opt(&child.min_length, &parent.min_length, PartialOrd::ge)
-        && contains(&*child.pattern, &*parent.pattern)
+        && child.pattern.is_subset(&parent.pattern)
         && check_opt(
             &child.additional_items,
             &parent.additional_items,
@@ -30,7 +30,7 @@ pub fn subtype(child: &Unit, parent: &Unit) -> bool {
             &parent.min_properties,
             PartialOrd::ge,
         )
-        && contains(&*child.required, &*parent.required)
+        && child.required.is_subset(&parent.required)
         // TODO: we should check properties and additional_props together.
         && check_opt(
             &child.additional_props,
@@ -80,8 +80,4 @@ fn check_props(child: &HashMap<RcStr, Unit>, parent: &HashMap<RcStr, Unit>) -> b
     }
 
     true
-}
-
-fn contains<T: PartialEq>(sup: &[T], sub: &[T]) -> bool {
-    sub.into_iter().all(|x| sup.contains(x))
 }

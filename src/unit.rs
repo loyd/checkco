@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use schema::{RcMixed, RcStr, Type};
 
@@ -10,7 +10,7 @@ pub struct Unit {
     pub minimum: Option<Point>,
     pub max_length: Option<u32>,
     pub min_length: Option<u32>,
-    pub pattern: Vec<RcStr>,
+    pub pattern: HashSet<RcStr>,
     pub additional_items: Option<Box<Unit>>,
     pub items: Option<Box<Unit>>,
     pub tuple: Vec<Unit>,
@@ -19,7 +19,7 @@ pub struct Unit {
     pub unique_items: bool,
     pub max_properties: Option<u32>,
     pub min_properties: Option<u32>,
-    pub required: Vec<RcStr>,
+    pub required: HashSet<RcStr>,
     pub additional_props: Option<Box<Unit>>,
     pub property_names: Option<Box<Unit>>,
     pub contains: Option<Box<Unit>>,

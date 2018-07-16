@@ -1,5 +1,6 @@
 use std::cmp;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 
 use schema::{RcStr, Type};
 use unit::{Point, Unit};
@@ -103,12 +104,8 @@ fn merge_tuple(dst: &mut Vec<Unit>, src: &[Unit]) -> bool {
     true
 }
 
-fn merge_set<T: PartialEq + Clone>(dst: &mut Vec<T>, src: &[T]) {
-    for item in src {
-        if !dst.contains(item) {
-            dst.push(item.clone());
-        }
-    }
+fn merge_set<T: Eq + Hash + Clone>(dst: &mut HashSet<T>, src: &HashSet<T>) {
+    dst.extend(src.into_iter().cloned());
 }
 
 fn merge_type(dst: &mut Option<Type>, src: &Option<Type>) -> bool {

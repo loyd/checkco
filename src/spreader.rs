@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::iter::{self, FromIterator};
 
 use either::Either;
@@ -24,7 +24,9 @@ pub fn spread(schema: Schema) -> Vec<Unit> {
         max_properties: res.max_properties,
         min_properties: res.min_properties,
         unique_items: res.unique_items.unwrap_or(false),
-        required: res.required.unwrap_or_else(Vec::new),
+        required: res
+            .required
+            .map_or_else(HashSet::new, |v| v.into_iter().collect()),
         format: res.format,
         const_: res.const_,
         ..Unit::default()
@@ -45,7 +47,7 @@ pub fn spread(schema: Schema) -> Vec<Unit> {
     };
 
     if let Some(pattern) = res.pattern {
-        unit.pattern.push(pattern);
+        unit.pattern.insert(pattern);
     }
 
     let types = match res.type_ {
