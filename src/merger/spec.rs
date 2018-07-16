@@ -4,20 +4,22 @@ use unit::Unit;
 
 macro_rules! test {
     ([$field:ident] $dst:expr, $src:expr => FAILED) => {
-        let (_, ok) = test!(@case, $field, $dst, $src);
-        let (_, ok_r) = test!(@case, $field, $src, $dst);
+        let (dst, src) = ($dst, $src);
+        let (_, ok_d) = test!(@case, $field, dst.clone(), src.clone());
+        let (_, ok_r) = test!(@case, $field, src, dst);
 
-        assert!(!ok);
+        assert!(!ok_d);
         assert!(!ok_r)
     };
     ([$field:ident] $dst:expr, $src:expr => $res:expr) => {
-        let (dst, ok) = test!(@case, $field, $dst, $src);
-        let (dst_r, ok_r) = test!(@case, $field, $src, $dst);
+        let (dst, src, res) = ($dst, $src, $res);
+        let (dst_d, ok_d) = test!(@case, $field, dst.clone(), src.clone());
+        let (dst_r, ok_r) = test!(@case, $field, src, dst);
 
-        assert!(ok);
+        assert!(ok_d);
         assert!(ok_r);
-        assert_eq!(dst.$field, $res);
-        assert_eq!(dst_r.$field, $res);
+        assert_eq!(dst_d.$field, res);
+        assert_eq!(dst_r.$field, res);
     };
     (@case, $field:ident, $dst:expr, $src:expr) => {{
         use super::merge;
@@ -203,5 +205,57 @@ mod unique_items {
     #[test]
     fn it_should_select_true() {
         test!([unique_items] false, true => true);
+    }
+}
+
+mod tuple {
+    use unit::Unit;
+
+    #[test]
+    fn it_should_merge_if_unfilled() {
+        test!([tuple] vec![], vec![Unit::default()] => vec![Unit::default()]);
+    }
+
+    #[test]
+    fn it_should_fail_if_different_shape() {
+        test!([tuple] vec![Unit::default(), Unit::default()], vec![Unit::default()] => FAILED);
+    }
+
+    #[test]
+    fn it_should_merge_appropriate_items() {
+        let a = Unit {
+            max_items: Some(42),
+            ..Unit::default()
+        };
+
+        let b = Unit {
+            min_items: Some(32),
+            ..Unit::default()
+        };
+
+        let r = Unit {
+            max_items: Some(42),
+            min_items: Some(32),
+            ..Unit::default()
+        };
+
+        test!([tuple] vec![a.clone(), a.clone()], vec![Unit::default(), b] => vec![a, r]);
+    }
+
+    #[test]
+    fn it_should_fail_if_cannot_merge_items() {
+        use schema::Type;
+
+        let a = Unit {
+            type_: Some(Type::Integer),
+            ..Unit::default()
+        };
+
+        let b = Unit {
+            type_: Some(Type::Array),
+            ..Unit::default()
+        };
+
+        test!([tuple] vec![a.clone(), a.clone()], vec![Unit::default(), b] => FAILED);
     }
 }

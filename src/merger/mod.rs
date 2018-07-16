@@ -86,7 +86,11 @@ fn merge_tuple(dst: &mut Vec<Unit>, src: &[Unit]) -> bool {
         return true;
     }
 
-    // TODO: should we allow it if we get additional_props?
+    if src.is_empty() {
+        return true;
+    }
+
+    // TODO: should we allow it if we get additional_items?
     if dst.len() != src.len() {
         return false;
     }
