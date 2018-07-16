@@ -122,6 +122,11 @@ mod type_ {
     }
 
     #[test]
+    fn it_should_merge_integer_and_number() {
+        test!([type_] Some(Type::Integer), Some(Type::Number) => Some(Type::Integer));
+    }
+
+    #[test]
     fn it_should_fail_if_different() {
         test!([type_] Some(Type::Integer), Some(Type::String) => FAILED);
     }

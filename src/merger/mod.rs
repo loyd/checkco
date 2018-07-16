@@ -1,7 +1,7 @@
 use std::cmp;
 use std::collections::HashMap;
 
-use schema::RcStr;
+use schema::{RcStr, Type};
 use unit::{Point, Unit};
 
 #[cfg(test)]
@@ -10,8 +10,7 @@ mod spec;
 #[must_use]
 pub fn merge(dst: &mut Unit, src: &Unit) -> bool {
     if !(merge_unique(&mut dst.const_, &src.const_)
-        // TODO: allow Number <- Integer.
-        && merge_unique(&mut dst.type_, &src.type_)
+        && merge_type(&mut dst.type_, &src.type_)
         && merge_unique(&mut dst.format, &src.format)
         && merge_nested(&mut dst.items, &src.items)
         && merge_nested(&mut dst.additional_items, &src.additional_items)
@@ -109,6 +108,24 @@ fn merge_set<T: PartialEq + Clone>(dst: &mut Vec<T>, src: &[T]) {
         if !dst.contains(item) {
             dst.push(item.clone());
         }
+    }
+}
+
+fn merge_type(dst: &mut Option<Type>, src: &Option<Type>) -> bool {
+    use schema::Type::*;
+
+    match (*dst, *src) {
+        (None, s) => {
+            *dst = s;
+            true
+        }
+        (Some(d), Some(s)) if d == s => true,
+        (Some(Number), Some(Integer)) | (Some(Integer), Some(Number)) => {
+            *dst = Some(Integer);
+            true
+        }
+        (_, None) => true,
+        (Some(_), Some(_)) => false,
     }
 }
 
