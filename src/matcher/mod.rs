@@ -3,6 +3,9 @@ use std::collections::HashMap;
 use schema::RcStr;
 use unit::Unit;
 
+#[cfg(test)]
+mod spec;
+
 pub fn subtype(child: &Unit, parent: &Unit) -> bool {
     check_opt(&child.const_, &parent.const_, |c, p| c == p)
         && check_opt(&child.multiple_of, &parent.multiple_of, |c, p| c % p == 0.)

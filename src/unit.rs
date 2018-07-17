@@ -52,7 +52,6 @@ impl Point {
         }
     }
 
-    // TODO: is it commutative?
     #[allow(float_cmp)]
     pub fn min(self, other: Point) -> Point {
         if self.value < other.value || self.value == other.value && other.inclusive {
