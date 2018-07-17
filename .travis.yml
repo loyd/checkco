@@ -21,6 +21,7 @@ before_script:
     #- cargo install clippy --force
 
 script:
+    - export RUSTFLAGS='-C link-dead-code'
     - cargo fmt --all -- --check
     - cargo build
     - cargo test
