@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
-use schema::RcStr;
+use schema::{RcStr, Type};
 use unit::Unit;
 
 #[cfg(test)]
@@ -45,7 +45,10 @@ pub fn subtype(child: &Unit, parent: &Unit) -> bool {
         && check_opt(&child.format, &parent.format, |c, p| c == p)
         && check_props(&child.properties, &parent.properties)
         && check_props(&child.pattern_props, &parent.pattern_props)
-        && check_opt(&child.type_, &parent.type_, |c, p| c == p)
+        && check_opt(&child.type_, &parent.type_, |c, p| match (c, p) {
+            (Type::Integer, Type::Number) => true,
+            (a, b) => a == b,
+        })
 }
 
 #[allow(borrowed_box)]

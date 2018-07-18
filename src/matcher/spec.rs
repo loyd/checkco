@@ -3,7 +3,7 @@ use super::*;
 mod subtype {
     use std::collections::HashMap;
 
-    use schema::{RcMixed, RcStr};
+    use schema::{RcMixed, RcStr, Type};
     use unit::{Point, Unit};
 
     macro_rules! test {
@@ -235,5 +235,12 @@ mod subtype {
     #[test]
     fn it_should_check_pattern_props() {
         test_props!(pattern_props);
+    }
+
+    #[test]
+    fn it_should_check_type() {
+        test!([type_] None, Some(Type::Integer) => false);
+        test!([type_] Some(Type::Integer), None => true);
+        test!([type_] Some(Type::Integer), Some(Type::Number) => true);
     }
 }
