@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 
 use schema::RcStr;
 use unit::Unit;
@@ -13,7 +14,7 @@ pub fn subtype(child: &Unit, parent: &Unit) -> bool {
         && check_opt(&child.minimum, &parent.minimum, |c, p| c.max(*p) == *c)
         && check_opt(&child.max_length, &parent.max_length, PartialOrd::le)
         && check_opt(&child.min_length, &parent.min_length, PartialOrd::ge)
-        && child.pattern.is_subset(&parent.pattern)
+        && check_set(&child.pattern, &parent.pattern)
         && check_opt(
             &child.additional_items,
             &parent.additional_items,
@@ -33,7 +34,7 @@ pub fn subtype(child: &Unit, parent: &Unit) -> bool {
             &parent.min_properties,
             PartialOrd::ge,
         )
-        && child.required.is_subset(&parent.required)
+        && check_set(&child.required, &parent.required)
         // TODO: we should check properties and additional_props together.
         && check_opt(
             &child.additional_props,
@@ -58,6 +59,10 @@ fn check_opt<T>(child: &Option<T>, parent: &Option<T>, chk: impl Fn(&T, &T) -> b
         (None, Some(_)) => false,
         _ => true,
     }
+}
+
+fn check_set<T: Eq + Hash>(child: &HashSet<T>, parent: &HashSet<T>) -> bool {
+    child.intersection(&parent).count() == parent.len()
 }
 
 fn check_tuple(child: &[Unit], parent: &[Unit]) -> bool {

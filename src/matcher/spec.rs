@@ -1,8 +1,8 @@
 use super::*;
 
 mod subtype {
-    use schema::RcMixed;
-    use unit::Point;
+    use schema::{RcMixed, RcStr};
+    use unit::{Point, Unit};
 
     macro_rules! test {
         ([$field:ident] $child:expr, $parent:expr => $res:expr) => {{
@@ -38,6 +38,30 @@ mod subtype {
             test!([$field] Some(42), None => true);
             test!([$field] Some(42), Some(43) => false);
             test!([$field] Some(42), Some(41) => true);
+        };
+    }
+
+    macro_rules! test_nested {
+        ($field:ident) => {
+            let a = Box::new(Unit {
+                required: vec![RcStr::from("a"), RcStr::from("b")].into_iter().collect(),
+                ..Unit::default()
+            });
+
+            let b = Box::new(Unit {
+                required: vec![RcStr::from("a")].into_iter().collect(),
+                ..Unit::default()
+            });
+
+            let c = Box::new(Unit {
+                required: vec![RcStr::from("c")].into_iter().collect(),
+                ..Unit::default()
+            });
+
+            test!([$field] None, Some(a.clone()) => false);
+            test!([$field] Some(a.clone()), None => true);
+            test!([$field] Some(a.clone()), Some(c) => false);
+            test!([$field] Some(a.clone()), Some(b) => true);
         };
     }
 
@@ -111,5 +135,60 @@ mod subtype {
     #[test]
     fn it_should_check_min_properties() {
         test_min!(min_properties);
+    }
+
+    #[test]
+    fn it_should_check_pattern() {
+        test!([pattern]
+              vec![RcStr::from("a")].into_iter().collect(),
+              vec![RcStr::from("a")].into_iter().collect() => true);
+
+        test!([pattern]
+              vec![RcStr::from("a")].into_iter().collect(),
+              vec![RcStr::from("b")].into_iter().collect() => false);
+
+        test!([pattern]
+              vec![RcStr::from("a"), RcStr::from("b")].into_iter().collect(),
+              vec![RcStr::from("b")].into_iter().collect() => true);
+    }
+
+    #[test]
+    fn it_should_check_required() {
+        test!([required]
+              vec![RcStr::from("a")].into_iter().collect(),
+              vec![RcStr::from("a")].into_iter().collect() => true);
+
+        test!([required]
+              vec![RcStr::from("a")].into_iter().collect(),
+              vec![RcStr::from("b")].into_iter().collect() => false);
+
+        test!([required]
+              vec![RcStr::from("a"), RcStr::from("b")].into_iter().collect(),
+              vec![RcStr::from("b")].into_iter().collect() => true);
+    }
+
+    #[test]
+    fn it_should_check_additional_items() {
+        test_nested!(additional_items);
+    }
+
+    #[test]
+    fn it_should_check_items() {
+        test_nested!(items);
+    }
+
+    #[test]
+    fn it_should_check_additional_props() {
+        test_nested!(additional_props);
+    }
+
+    #[test]
+    fn it_should_check_contains() {
+        test_nested!(contains);
+    }
+
+    #[test]
+    fn it_should_check_property_names() {
+        test_nested!(property_names);
     }
 }
