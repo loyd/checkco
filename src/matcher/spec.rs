@@ -243,4 +243,28 @@ mod subtype {
         test!([type_] Some(Type::Integer), None => true);
         test!([type_] Some(Type::Integer), Some(Type::Number) => true);
     }
+
+    #[test]
+    fn it_should_check_tuple() {
+        let a = Unit {
+            required: vec![RcStr::from("a"), RcStr::from("b")]
+                .into_iter()
+                .collect(),
+            ..Unit::default()
+        };
+
+        let b = Unit {
+            required: vec![RcStr::from("a")].into_iter().collect(),
+            ..Unit::default()
+        };
+
+        let c = Unit {
+            required: vec![RcStr::from("c")].into_iter().collect(),
+            ..Unit::default()
+        };
+
+        test!([tuple] vec![a.clone()], vec![a.clone(), b.clone()] => false);
+        test!([tuple] vec![a.clone()], vec![b.clone()] => true);
+        test!([tuple] vec![a.clone()], vec![c.clone()] => false);
+    }
 }
