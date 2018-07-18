@@ -1,6 +1,8 @@
 use super::*;
 
 mod subtype {
+    use std::collections::HashMap;
+
     use schema::{RcMixed, RcStr};
     use unit::{Point, Unit};
 
@@ -62,6 +64,39 @@ mod subtype {
             test!([$field] Some(a.clone()), None => true);
             test!([$field] Some(a.clone()), Some(c) => false);
             test!([$field] Some(a.clone()), Some(b) => true);
+        };
+    }
+
+    macro_rules! test_props {
+        ($field:ident) => {
+            let a = Unit {
+                required: vec![RcStr::from("a"), RcStr::from("b")].into_iter().collect(),
+                ..Unit::default()
+            };
+
+            let mut ha = HashMap::new();
+            ha.insert(RcStr::from("a"), a);
+
+            let b = Unit {
+                required: vec![RcStr::from("a")].into_iter().collect(),
+                ..Unit::default()
+            };
+
+            let mut hb = HashMap::new();
+            hb.insert(RcStr::from("a"), b);
+
+            let c = Unit {
+                required: vec![RcStr::from("c")].into_iter().collect(),
+                ..Unit::default()
+            };
+
+            let mut hc = HashMap::new();
+            hc.insert(RcStr::from("a"), c);
+
+            test!([$field] HashMap::new(), ha.clone() => false);
+            test!([$field] ha.clone(), HashMap::new() => true);
+            test!([$field] ha.clone(), hc => false);
+            test!([$field] ha.clone(), hb => true);
         };
     }
 
@@ -190,5 +225,15 @@ mod subtype {
     #[test]
     fn it_should_check_property_names() {
         test_nested!(property_names);
+    }
+
+    #[test]
+    fn it_should_check_properties() {
+        test_props!(properties);
+    }
+
+    #[test]
+    fn it_should_check_pattern_props() {
+        test_props!(pattern_props);
     }
 }
