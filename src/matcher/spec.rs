@@ -241,6 +241,7 @@ mod subtype {
     fn it_should_check_type() {
         test!([type_] None, Some(Type::Integer) => false);
         test!([type_] Some(Type::Integer), None => true);
+        test!([type_] Some(Type::Integer), Some(Type::String) => false);
         test!([type_] Some(Type::Integer), Some(Type::Number) => true);
     }
 
